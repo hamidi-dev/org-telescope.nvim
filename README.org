@@ -1,0 +1,189 @@
+* org-telescope.nvim
+
+A Neovim plugin that tracks and navigates org-mode headlines with Telescope integration.
+
+** Features
+
+- Automatically tracks org-mode headlines as you navigate
+- Browse all headlines across your org files
+- Persistent history across Neovim sessions
+- Telescope integration for browsing and searching history
+- Preview headlines with file context
+- Filter by headline level and TODO state (TODO, PROGRESS, DONE, WAITING)
+- Toggle between chronological and reverse chronological order
+- Multi-select entries for batch operations
+- Delete history entries
+- Refile headlines to other files or under different headings (toggle target mode with <C-Space>)
+- Configurable headline level tracking
+- Exclude specific files from tracking
+
+** Requirements
+
+- Neovim 0.7+
+- [[https://github.com/nvim-telescope/telescope.nvim][telescope.nvim]]
+
+** Installation
+
+*** Using [[https://github.com/folke/lazy.nvim][lazy.nvim]]
+
+#+begin_src lua
+{
+  'username/org-telescope.nvim',
+  dependencies = { 'nvim-telescope/telescope.nvim' },
+  config = true,
+  -- or with custom configuration:
+  -- config = function()
+    --   require('org-telescope').setup({
+      --     -- your custom config here
+      --   })
+      -- end
+    }
+#+end_src
+
+** Configuration
+
+The plugin works with default settings, but you can customize it to your needs:
+
+#+begin_src lua
+require('org-telescope').setup({
+  -- Maximum headline level to track (default: 2)
+  max_headline_level = 2,
+
+  -- History storage location
+  -- TODO: switch to stdpath
+  history_file = vim.fn.expand("~/.local/state/nvim/org-telescope/history.json"),
+
+  -- Picker defaults
+  picker = {
+    initial_mode = "insert",  -- "insert" or "normal"
+    reverse_sort = true,      -- newest first
+  },
+
+  -- Keymaps
+  keymaps = {
+    open_history = "<localleader>oh",
+    browse_headlines = "<localleader>ob",
+    refile_heading = "<localleader>or",
+    toggle_sort = "<C-r>",
+    toggle_level_filter = "<C-l>",
+    clear_history = "<localleader>ohc",
+    delete_entry = {
+      normal = "D",
+      insert = "<C-d>",
+    },
+    -- TODO state filter keymaps
+    todo_filters = {
+      normal = {
+        todo = "t",
+        progress = "p",
+        done = "d",
+        waiting = "w",
+        all = "a",
+      },
+      insert = {
+        todo = "<C-t>",
+        progress = "<C-p>",
+        done = "<C-d>",
+        waiting = "<C-w>",
+        all = "<C-a>",
+      },
+    },
+  },
+
+  refile = {
+    -- choose "file" or "heading" as default target mode
+    default_mode = "file",
+  },
+
+  -- File patterns to track
+  patterns = { "*.org" },
+
+  -- Org folder location (nil means track all *.org files)
+  org_folder = nil,
+
+  -- Files to exclude from tracking (can be full paths or filenames)
+  exclude_files = { "private.org", "secrets.org" },
+
+  -- Debug mode
+  debug = false,
+})
+#+end_src
+
+** Usage
+
+*** Default Keymaps
+
+| Keymap                | Action                                      |
+|-----------------------+---------------------------------------------|
+| <localleader>oh       | Open org headline history in Telescope      |
+| <localleader>ob       | Browse all org headlines in Telescope       |
+| <localleader>ohc      | Clear org headline history                  |
+| <localleader>or       | Refile current heading                      |
+| <C-r> (in Telescope)  | Toggle between newest/oldest first          |
+| <C-l> (in Telescope)  | Toggle between all levels/only level 1      |
+| D (normal mode)       | Delete selected entry from history          |
+| <C-d> (insert mode)   | Delete selected entry from history          |
+| <Tab>                 | Toggle selection and move up                |
+| t (normal mode)       | Filter by TODO state                        |
+| p (normal mode)       | Filter by PROGRESS state                    |
+| d (normal mode)       | Filter by DONE state                        |
+| w (normal mode)       | Filter by WAITING state                     |
+| a (normal mode)       | Show all TODO states                        |
+| <C-t> (insert mode)   | Filter by TODO state                        |
+| <C-p> (insert mode)   | Filter by PROGRESS state                    |
+| <C-d> (insert mode)   | Filter by DONE state                        |
+| <C-w> (insert mode)   | Filter by WAITING state                     |
+| <C-a> (insert mode)   | Show all TODO states                        |
+
+*** Commands
+
+The plugin provides the following Lua functions that you can map to your own keybindings:
+
+- ~require('org-telescope').open_telescope_history()~ - Open the history picker
+- ~require('org-telescope').open_telescope_all_headlines()~ - Browse all headlines
+- ~require('org-telescope').clear_history()~ - Clear the history
+- ~require('org-telescope').delete_history_entry(index)~ - Delete a specific entry
+- ~require('org-telescope').delete_multiple_entries(indices)~ - Delete multiple entries
+- ~require('org-telescope').refile_current_heading()~ - Refile the current heading
+
+** How It Works
+
+The plugin provides the following main features:
+
+*** History Tracking
+The plugin automatically tracks your cursor movements in org files and records headline information when you navigate to them. The history is stored in a JSON file and persists across Neovim sessions.
+
+*** All Headlines Browsing
+You can browse all headlines across your org files without needing to visit them first. This is useful for getting an overview of your org files or quickly jumping to a specific headline.
+
+*** Refile Headings
+Move the current heading to another file or headline.
+Works from anywhere inside the heading.
+Press <C-Space> to toggle between file and headline targets.
+The source is cleaned up, destination adjusted and saved.
+
+*** Common Features
+
+Both history and all headlines views provide:
+
+- Color-coded TODO states (TODO: red, PROGRESS: orange, DONE: green, WAITING: purple)
+- Preview of the headline in its file context
+- Jump directly to the headline location
+- Filter by headline level (all levels or only level 1)
+- Filter by TODO state (TODO, PROGRESS, DONE, WAITING, or all)
+- Toggle sort order (newest/oldest first)
+- Multi-select entries for batch operations (in history view)
+- In the refile picker, press <C-Space> to switch between file and heading targets
+
+** Troubleshooting
+
+If you encounter issues:
+
+1. Enable debug mode in your configuration:
+   #+begin_src lua
+   require('org-telescope').setup({ debug = true })
+   #+end_src
+
+2. Check the history file location to ensure it's being created properly
+
+3. If certain files aren't being tracked, check your `org_folder` and `exclude_files` settings
