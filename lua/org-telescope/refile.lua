@@ -2,6 +2,7 @@
 local scanner  = require("org-telescope.scanner")
 local headline = require("org-telescope.headline")
 local util     = require("org-telescope.util")
+local customPickers  = require("org-telescope.pickers")
 
 local R = {}
 
@@ -140,17 +141,22 @@ function R.refile_current_heading(mode)
   local all_headlines = scanner.scan()
   local files         = gather_files()
 
-  local pickers, finders, conf, actions, action_state =
+  local telescope_pickers, finders, conf, actions, action_state =
       require("telescope.pickers"),
       require("telescope.finders"),
       require("telescope.config").values,
       require("telescope.actions"),
       require("telescope.actions.state")
+  customPickers.highlight_groups()
 
   local function make_file_entries()
     local tbl = {}
     for i, f in ipairs(files) do
-      tbl[i] = { value = f, display = vim.fn.fnamemodify(f, ":t"), ordinal = f }
+      tbl[i] = {
+        value = { file = f, line = 1 },
+        display = vim.fn.fnamemodify(f, ":t"),
+        ordinal = f,
+      }
     end
     return tbl
   end
@@ -172,7 +178,7 @@ function R.refile_current_heading(mode)
   -- 3) Picker erstellen & anzeigen
   ----------------------------------------------------------------------
   local function build_picker(entries, title)
-    return pickers.new({ initial_mode = "insert", prompt_title = title }, {
+    return telescope_pickers.new({ initial_mode = "insert", prompt_title = title }, {
       finder = finders.new_table{
         results = entries,
         entry_maker = function(e)
@@ -180,6 +186,7 @@ function R.refile_current_heading(mode)
         end,
       },
       sorter = conf.generic_sorter({}),
+      previewer = customPickers.custom_previewer(),
       attach_mappings = function(bufnr, map)
         -- zwischen Datei- & Headline-Mode umschalten
         local function toggle()
@@ -194,7 +201,7 @@ function R.refile_current_heading(mode)
           local sel = action_state.get_selected_entry()
           actions.close(bufnr)
           if mode == "file" then
-            move_segment(file, s, e, sel.value, nil, 0)
+            move_segment(file, s, e, sel.value.file, nil, 0)
           else
             local tlines = vim.fn.readfile(sel.value.file)
             local _, tstop = heading_range(tlines, sel.value.line)
