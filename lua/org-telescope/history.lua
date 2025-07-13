@@ -7,21 +7,55 @@ local function load() S.list = U.read_json(config.history_file, {}) end
 local function save() U.write_json(config.history_file, S.list) end
 
 -- ---------------------------------------------------------------------
+-- utils ----------------------------------------------------------
+local function now_ms()
+  return string.format("%s.%03d",
+    os.date("%Y-%m-%d %H:%M:%S"),
+    math.floor(vim.loop.hrtime() / 1e6) % 1000)
+end
+
+local function same(e, f, l, t)
+  return e.file == f and e.line == l and e.text == t
+end
+
+-- main -----------------------------------------------------------
 function M.add(file, line, hl)
-  for _, e in ipairs(S.list) do
-    if e.file == file and e.line == line and e.text == hl.text then
-      e.time = os.date("%Y-%m-%d %H:%M:%S"); return save()
-    end
-  end
-  table.insert(S.list, {
+  local newest = {
     file = file,
     line = line,
-    time = os.date("%Y-%m-%d %H:%M:%S"),
     text = hl.text,
+    time = now_ms(),
     level = hl.level,
     todo_state = hl.todo_state,
-    headline_text = hl.headline_text
-  })
+    headline_text = hl.headline_text,
+  }
+
+  -- 1️⃣ update *all* duplicates in-place
+  local first_seen = nil
+  local i = 1
+  while i <= #S.list do
+    if same(S.list[i], file, line, hl.text) then
+      S.list[i] = newest
+      if first_seen then
+        -- drop extra dupes
+        table.remove(S.list, i)
+      else
+        first_seen = true
+        i = i + 1
+      end
+    else
+      i = i + 1
+    end
+  end
+
+  -- 2️⃣ nothing matched → append
+  if not first_seen then
+    table.insert(S.list, newest)
+  end
+
+  -- 3️⃣ sort newest-first (optional)
+  table.sort(S.list, function(a, b) return a.time < b.time end)
+
   save()
 end
 
@@ -67,3 +101,4 @@ end
 load()
 
 return M
+
