@@ -3,7 +3,7 @@ local M = {}
 
 M.defaults = {
   max_headline_level = 2,
-  history_file       = vim.fn.expand("~/.local/state/nvim/org-telescope/history.json"),
+  history_file       = vim.fn.stdpath("state") .. "/org-telescope/history.json",
   auto_prune         = false,
   todo_keywords      = { "TODO", "PROGRESS", "DONE", "WAITING" },
 
@@ -23,8 +23,8 @@ M.defaults = {
     search_all_files = true,
   },
 
-  refile            = {
-    default_mode    = "file", -- or "heading"
+  refile             = {
+    default_mode = "file",    -- or "heading"
   },
 
   -- Keymaps (original Layout) -----------------------------------------

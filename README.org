@@ -50,8 +50,7 @@ require('org-telescope').setup({
   max_headline_level = 2,
 
   -- History storage location
-  -- TODO: switch to stdpath
-  history_file = vim.fn.expand("~/.local/state/nvim/org-telescope/history.json"),
+  history_file       = vim.fn.stdpath("state") .. "/org-telescope/history.json",
 
   -- Picker defaults
   picker = {
