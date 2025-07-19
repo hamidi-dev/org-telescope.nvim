@@ -14,6 +14,7 @@ local function gather_files()
     if not config.org_folder_only then
       for _, b in ipairs(vim.api.nvim_list_bufs()) do
         local n = vim.api.nvim_buf_get_name(b)
+        if n ~= '' then n = vim.fn.fnamemodify(n, ':p') end
         if U.file_in_scope(n) and not vim.tbl_contains(files, n) then
           table.insert(files, n)
         end
@@ -22,6 +23,7 @@ local function gather_files()
   else
     for _, b in ipairs(vim.api.nvim_list_bufs()) do
       local n = vim.api.nvim_buf_get_name(b)
+      if n ~= '' then n = vim.fn.fnamemodify(n, ':p') end
       if U.file_in_scope(n) then table.insert(files, n) end
     end
   end
@@ -31,17 +33,19 @@ end
 function S.scan()
   local res = {}
   for _, file in ipairs(gather_files()) do
-    for i, l in ipairs(vim.fn.readfile(file)) do
-      local lvl, todo, text = H.parse(l)
-      if lvl then
-        table.insert(res, {
-          file = file,
-          line = i,
+    if vim.fn.filereadable(file) == 1 then
+      for i, l in ipairs(vim.fn.readfile(file)) do
+        local lvl, todo, text = H.parse(l)
+        if lvl then
+          table.insert(res, {
+            file = file,
+            line = i,
           text = (todo and (todo .. " " .. text) or text),
           level = lvl,
           todo_state = todo,
           headline_text = text,
         })
+        end
       end
     end
   end
