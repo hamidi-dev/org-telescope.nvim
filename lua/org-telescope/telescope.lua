@@ -156,7 +156,7 @@ function T.open_telescope_picker(opts)
       if opts.allow_preview_toggle and config.keymaps.toggle_preview then
         local layout_actions = require("telescope.actions.layout")
         if not state.show_preview then
-          vim.schedule(function() layout_actions.toggle_preview(bufnr) end)
+          layout_actions.toggle_preview(bufnr)
         end
         map("n", config.keymaps.toggle_preview, function()
           state.show_preview = not state.show_preview
