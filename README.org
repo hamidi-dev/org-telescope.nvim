@@ -65,6 +65,7 @@ require('org-telescope').setup({
     refile_heading = "<localleader>or",
     toggle_sort = "<C-r>",
     toggle_level_filter = "<C-l>",
+    toggle_preview = "<C-x>",
     clear_history = "<localleader>ohc",
     delete_entry = {
       normal = "D",
@@ -94,6 +95,10 @@ require('org-telescope').setup({
     default_mode = "file",
   },
 
+  browse = {
+    preview = false, -- start without preview window
+  },
+
   -- File patterns to track
   patterns = { "*.org" },
 
@@ -120,6 +125,7 @@ require('org-telescope').setup({
 | <localleader>or       | Refile current heading                      |
 | <C-r> (in Telescope)  | Toggle between newest/oldest first          |
 | <C-l> (in Telescope)  | Toggle between all levels/only level 1      |
+| <C-x> (in Telescope)  | Toggle preview window                       |
 | D (normal mode)       | Delete selected entry from history          |
 | <C-d> (insert mode)   | Delete selected entry from history          |
 | <Tab>                 | Toggle selection and move up                |
@@ -166,7 +172,7 @@ The source is cleaned up, destination adjusted and saved.
 Both history and all headlines views provide:
 
 - Color-coded TODO states (TODO: red, PROGRESS: orange, DONE: green, WAITING: purple)
-- Preview of the headline in its file context
+- Optional preview of the headline in its file context
 - Jump directly to the headline location
 - Filter by headline level (all levels or only level 1)
 - Filter by TODO state (TODO, PROGRESS, DONE, WAITING, or all)

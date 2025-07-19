@@ -11,6 +11,7 @@ local state   = {
   active_level_filter = nil,
   active_todo_filter  = nil,
   reverse_sort        = config.picker.reverse_sort,
+  show_preview        = true,
 }
 
 -- ---------------------------------------------------------------------
@@ -22,21 +23,29 @@ end
 
 -- Finder / Previewer helpers ------------------------------------------
 
-local function entry_maker()
+local function entry_maker(show_time)
   local entry_display = require("telescope.pickers.entry_display")
-  local displayer = entry_display.create {
-    separator = " ",
-    items = { { width = 8 }, { width = 1 }, { width = 50 }, { width = 1 }, { width = 16 }, { width = 20 } },
-  }
+  local displayer
+  if show_time then
+    displayer = entry_display.create {
+      separator = " ",
+      items = { { width = 8 }, { width = 1 }, { width = 50 }, { width = 1 }, { width = 16 }, { width = 20 } },
+    }
+  else
+    displayer = entry_display.create {
+      separator = " ",
+      items = { { width = 8 }, { width = 1 }, { width = 70 }, { width = 1 }, { width = 20 } },
+    }
+  end
   return function(entry, idx)
     local indent = string.rep("  ", entry.level - 1)
     local todo   = entry.todo_state or ""
     local file_i = "(" .. vim.fn.fnamemodify(entry.file, ":t") .. ":" .. entry.line .. ")"
 
     local function disp()
-      local time = { entry.time and entry.time:sub(1, 16) or "---", "Comment" }
       local sep  = { "│", "Comment" }
       local fp   = { file_i, "Comment" }
+      local time = show_time and { entry.time and entry.time:sub(1, 16) or "---", "Comment" } or nil
       local td_hl
       if todo == "TODO" then
         td_hl = "OrgTodoRed"
@@ -48,15 +57,24 @@ local function entry_maker()
         td_hl = "OrgWaiting"
       end
       if todo ~= "" then
-        return displayer { { todo, td_hl }, sep, { indent .. (entry.headline_text or entry.text), "Normal" }, sep, time, fp }
+        if show_time then
+          return displayer { { todo, td_hl }, sep, { indent .. (entry.headline_text or entry.text), "Normal" }, sep, time, fp }
+        else
+          return displayer { { todo, td_hl }, sep, { indent .. (entry.headline_text or entry.text), "Normal" }, sep, fp }
+        end
       else
-        return displayer { { "---", "Comment" }, sep, { indent .. entry.headline_text, "Normal" }, sep, time, fp }
+        if show_time then
+          return displayer { { "---", "Comment" }, sep, { indent .. entry.headline_text, "Normal" }, sep, time, fp }
+        else
+          return displayer { { "---", "Comment" }, sep, { indent .. entry.headline_text, "Normal" }, sep, fp }
+        end
       end
     end
 
     return {
       value   = entry,
-      ordinal = entry.text .. " " .. (entry.time or "") .. " " .. file_i,
+      ordinal = show_time and (entry.text .. " " .. (entry.time or "") .. " " .. file_i)
+                or (entry.text .. " " .. file_i),
       index   = idx,
       display = disp,
       path    = entry.file, -- 👈 wichtig!
@@ -88,13 +106,15 @@ function T.open_telescope_picker(opts)
 
   local filtered = filter_entries(opts.entries)
 
+  local show_time   = opts.show_time ~= false
+
   local picker = pickers.new({
     initial_mode = opts.initial_mode or config.picker.initial_mode,
     results_title = opts.results_title,
     layout_config = { width = 0.9, height = 0.8, preview_width = 0.65 },
   }, {
     prompt_title    = opts.prompt_title,
-    finder          = finders.new_table { results = filtered, entry_maker = entry_maker() },
+    finder          = finders.new_table { results = filtered, entry_maker = entry_maker(show_time) },
     sorter          = conf.generic_sorter({}),
     previewer       = customPickers.custom_previewer(),
     attach_mappings = function(bufnr, map)
@@ -131,6 +151,22 @@ function T.open_telescope_picker(opts)
       map("i", config.keymaps.toggle_level_filter, function()
         state.active_level_filter = state.active_level_filter and nil or 1; re_open()
       end)
+
+      -- Preview Toggle -------------------------------------------------
+      if opts.allow_preview_toggle and config.keymaps.toggle_preview then
+        local layout_actions = require("telescope.actions.layout")
+        if not state.show_preview then
+          vim.schedule(function() layout_actions.toggle_preview(bufnr) end)
+        end
+        map("n", config.keymaps.toggle_preview, function()
+          state.show_preview = not state.show_preview
+          layout_actions.toggle_preview(bufnr)
+        end)
+        map("i", config.keymaps.toggle_preview, function()
+          state.show_preview = not state.show_preview
+          layout_actions.toggle_preview(bufnr)
+        end)
+      end
 
       -- TODO-Filter ----------------------------------------------------
       local function todo_filter(val)
@@ -226,7 +262,7 @@ function T.open_telescope_picker(opts)
         pk:refresh( -- komplett neuer Finder
           require("telescope.finders").new_table {
             results     = filter_entries(opts.entries),
-            entry_maker = entry_maker(),
+            entry_maker = entry_maker(show_time),
           },
           { reset_prompt = false } -- Cursor/Prompt behalten
         )
@@ -284,6 +320,8 @@ function T.open_history(opts)
     k.toggle_level_filter:gsub("[<>]", ""), k.toggle_sort:gsub("[<>]", ""))
   opts.open_picker    = T.open_history
   opts.allow_deletion = true
+  state.show_preview  = true
+  opts.show_time      = true
   if config.auto_prune and not did_auto_prune then
     did_auto_prune = true
     history.prune()
@@ -305,6 +343,9 @@ function T.open_all_headlines(opts)
     k.toggle_level_filter:gsub("[<>]", ""), k.toggle_sort:gsub("[<>]", ""))
   opts.open_picker    = T.open_all_headlines
   opts.allow_deletion = false
+  state.show_preview  = config.browse.preview
+  opts.show_time      = false
+  opts.allow_preview_toggle = true
   T.open_telescope_picker(opts)
 end
 

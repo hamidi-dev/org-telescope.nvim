@@ -34,11 +34,10 @@ function S.scan()
         table.insert(res, {
           file = file,
           line = i,
-          time = os.date("%Y-%m-%d %H:%M:%S"),
           text = (todo and (todo .. " " .. text) or text),
           level = lvl,
           todo_state = todo,
-          headline_text = text
+          headline_text = text,
         })
       end
     end

@@ -27,6 +27,10 @@ M.defaults = {
     default_mode = "file",    -- or "heading"
   },
 
+  browse            = {
+    preview = false,        -- start headline browser without preview
+  },
+
   -- Keymaps (original Layout) -----------------------------------------
   keymaps            = {
     open_history        = "<localleader>oh",
@@ -37,6 +41,7 @@ M.defaults = {
 
     toggle_sort         = "<C-r>",
     toggle_level_filter = "<C-l>",
+    toggle_preview      = "<C-x>",
 
     delete_entry        = { normal = "D", insert = "<C-d>" },
 
