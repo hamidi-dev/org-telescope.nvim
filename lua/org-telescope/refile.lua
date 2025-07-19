@@ -9,19 +9,12 @@ local R             = {}
 ------------------------------------------------------------------------
 -- helpers
 ------------------------------------------------------------------------
-local function include_file(path)
-  if not path:match("%.org$") then return false end
-  for _, ex in ipairs(config.exclude_files or {}) do
-    if path == ex or vim.fn.fnamemodify(path, ":t") == ex then return false end
-  end
-  return true
-end
 
 -- rekursiv alle .org-Dateien einsammeln (ohne externe Tools)
 local function scandir(dir, out)
   for name, t in vim.fs.dir(dir) do
     local p = dir .. "/" .. name
-    if t == "file" and include_file(p) then
+    if t == "file" and util.file_in_scope(p) then
       table.insert(out, p)
     elseif t == "directory" then
       scandir(p, out)
@@ -33,10 +26,18 @@ local function gather_files()
   local files = {}
   if config.org_folder then
     scandir(vim.fn.expand(config.org_folder), files)
+    if not config.org_folder_only then
+      for _, b in ipairs(vim.api.nvim_list_bufs()) do
+        local n = vim.api.nvim_buf_get_name(b)
+        if util.file_in_scope(n) and not vim.tbl_contains(files, n) then
+          table.insert(files, n)
+        end
+      end
+    end
   else
     for _, b in ipairs(vim.api.nvim_list_bufs()) do
       local n = vim.api.nvim_buf_get_name(b)
-      if include_file(n) then table.insert(files, n) end
+      if util.file_in_scope(n) then table.insert(files, n) end
     end
   end
   local seen, uniq = {}, {}

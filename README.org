@@ -60,9 +60,15 @@ require('org-telescope').setup({
   },
 
   -- File-Scope ---------------------------------------------------------
+  -- 'patterns' and 'org_folder' work together:
+  -- only files matching the patterns inside 'org_folder' are considered
+  -- when 'org_folder_only' is true. Set it to false to also track
+  -- matching files outside the folder.
+  -- If 'org_folder' is nil, patterns apply globally.
   patterns           = { "*.org" },    -- File patterns to track
-  org_folder         = nil,             -- Org folder location (nil means track all *.org files)
-  exclude_files = { "private.org", "secrets.org" }, -- Files to exclude from tracking (can be full paths or filenames)
+  org_folder         = nil,             -- Restrict tracking to this folder (nil tracks all patterns)
+  org_folder_only    = true,            -- When false also track files outside org_folder
+  exclude_files = { "private.org", "secrets.org" }, -- Files to exclude (full paths or filenames)
 
   smart_tracking     = {
     enabled          = true,

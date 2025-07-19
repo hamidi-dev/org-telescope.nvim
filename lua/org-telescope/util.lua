@@ -47,4 +47,34 @@ function U.write_json(path, tbl)
   if not ok then err("Could not rename " .. tmp .. " → " .. path .. ": " .. tostring(mv)) end
 end
 
+local function startswith(str, prefix)
+  return str:sub(1, #prefix) == prefix
+end
+
+local function matches_patterns(path)
+  local pats = config.patterns or { "*.org" }
+  for _, p in ipairs(pats) do
+    local lua_p = "^" .. p:gsub("([%.%-%+])", "%%%1"):gsub("%*", ".*") .. "$"
+    if path:match(lua_p) then return true end
+  end
+  return false
+end
+
+-- Check whether a file should be tracked
+function U.file_in_scope(path)
+  if not path or path == "" then return false end
+  if not matches_patterns(path) then return false end
+  if config.org_folder and config.org_folder_only ~= false then
+    local folder = vim.fn.expand(config.org_folder)
+    if not startswith(path, folder) then return false end
+  end
+  for _, ex in ipairs(config.exclude_files or {}) do
+    local expanded = vim.fn.expand(ex)
+    if path == expanded or path == ex or vim.fn.fnamemodify(path, ":t") == ex then
+      return false
+    end
+  end
+  return true
+end
+
 return U

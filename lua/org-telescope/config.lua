@@ -18,6 +18,7 @@ M.defaults = {
   -- File-Scope ---------------------------------------------------------
   patterns           = { "*.org" },
   org_folder         = nil,
+  org_folder_only    = true,
   exclude_files      = {},
 
   smart_tracking     = {
@@ -62,6 +63,9 @@ M.defaults = {
 
 function M.setup(user)
   _G.config = vim.tbl_deep_extend("force", vim.deepcopy(M.defaults), user or {})
+  if _G.config.org_folder then
+    _G.config.org_folder = vim.fn.expand(_G.config.org_folder)
+  end
   return _G.config
 end
 
