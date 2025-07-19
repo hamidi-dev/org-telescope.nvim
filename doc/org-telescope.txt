@@ -1,0 +1,96 @@
+*org-telescope.txt*  Nvim help
+
+org-telescope.nvim	*org-telescope*
+===================================
+
+Track and navigate org-mode headlines with Telescope.
+
+DESCRIPTION*org-telescope-description*
+-------------------------------------------------------------------------------
+This plugin records visited headlines in your org files and exposes
+Telescope pickers to jump to them later.  It can also browse all
+headlines without visiting the files.
+
+INSTALLATION*org-telescope-installation*
+-------------------------------------------------------------------------------
+Use your favourite plugin manager.  Example with |lazy.nvim|:
+>
+  {
+    'hamidi-dev/org-telescope.nvim',
+    dependencies = { 'nvim-telescope/telescope.nvim' },
+    config = true,
+  }
+<
+Run `:helptags` after installing to generate the help tags.
+
+CONFIGURATION*org-telescope-configuration*
+-------------------------------------------------------------------------------
+Call `require('org-telescope').setup({})` with your options.
+Default configuration:
+>
+    require('org-telescope').setup({
+      todo_keywords = { 'TODO', 'PROGRESS', 'DONE', 'WAITING' },
+      picker = { initial_mode = 'insert', reverse_sort = true },
+      pickers = {
+        browse_headlines = { initial_mode = 'insert', preview = false },
+        browse_history   = { initial_mode = 'normal', preview = true  },
+        refile           = { initial_mode = 'insert', preview = true  },
+      },
+      patterns         = { '*.org' },
+      org_folder       = nil,
+      org_folder_only  = true,
+      exclude_files    = {},
+      smart_tracking   = { enabled = true, auto_update = true, search_all_files = true },
+      refile           = { default_mode = 'file' },
+      history          = {
+        history_file   = vim.fn.stdpath('state')..'/org-telescope/history.json',
+        auto_prune     = false,
+        max_headline_level = 2,
+      },
+      keymaps = {
+        open_history        = '<localleader>oh',
+        browse_all          = '<localleader>ob',
+        clear_history       = '<localleader>ohc',
+        refile_heading      = '<localleader>or',
+        toggle_sort         = '<C-r>',
+        toggle_level_filter = '<C-l>',
+        toggle_preview      = '<C-x>',
+        delete_entry        = { normal = 'D', insert = '<C-d>' },
+        todo_filters        = {
+          normal = { todo='t', progress='p', done='d', waiting='w', all='a' },
+          insert = { todo='<C-t>', progress='<C-p>', done='<C-d>', waiting='<C-w>', all='<C-a>' },
+        },
+      },
+      debug = false,
+    })
+<
+
+USAGE*org-telescope-usage*
+-------------------------------------------------------------------------------
+Default keymaps:
+>
+| <localleader>oh | Open org headline history |
+| <localleader>ob | Browse all org headlines   |
+| <localleader>ohc| Clear org headline history |
+| <localleader>or | Refile current heading     |
+<
+
+The Telescope prompt accepts additional mappings to filter TODO
+states, toggle sorting, and show or hide the preview window.
+
+COMMANDS*org-telescope-commands*
+-------------------------------------------------------------------------------
+You may call these Lua functions directly:
+>
+  require('org-telescope').open_telescope_history()
+  require('org-telescope').open_telescope_all_headlines()
+  require('org-telescope').clear_history()
+  require('org-telescope').delete_history_entry(index)
+  require('org-telescope').delete_multiple_entries(indices)
+  require('org-telescope').refile_current_heading()
+<
+
+SEE ALSO*org-telescope-see-also*
+-------------------------------------------------------------------------------
+|telescope.nvim|, |orgmode|
+
