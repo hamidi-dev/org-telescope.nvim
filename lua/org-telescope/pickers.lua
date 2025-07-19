@@ -1,12 +1,13 @@
 local M = {}
 
 function M.highlight_groups()
-  vim.api.nvim_exec([[
-    highlight default OrgTodoRed     guifg=#FF5555 gui=bold
-    highlight default OrgProgress    guifg=#FFAA00 gui=bold
-    highlight default OrgDone        guifg=#50FA7B gui=bold
-    highlight default OrgWaiting     guifg=#BD93F9 gui=bold
-  ]], false)
+  for _, s in ipairs(config.todo_states or {}) do
+    local hl = config.todo_highlights[s.name]
+    if hl and s.color then
+      local style = s.style or "bold"
+      vim.api.nvim_command(string.format("highlight default %s guifg=%s gui=%s", hl, s.color, style))
+    end
+  end
 end
 
 function M.custom_previewer()

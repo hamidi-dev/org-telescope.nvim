@@ -43,19 +43,10 @@ local function entry_maker(show_time)
     local file_i = "(" .. vim.fn.fnamemodify(entry.file, ":t") .. ":" .. entry.line .. ")"
 
     local function disp()
-      local sep  = { "│", "Comment" }
-      local fp   = { file_i, "Comment" }
-      local time = show_time and { entry.time and entry.time:sub(1, 16) or "---", "Comment" } or nil
-      local td_hl
-      if todo == "TODO" then
-        td_hl = "OrgTodoRed"
-      elseif todo == "PROGRESS" then
-        td_hl = "OrgProgress"
-      elseif todo == "DONE" then
-        td_hl = "OrgDone"
-      elseif todo == "WAITING" then
-        td_hl = "OrgWaiting"
-      end
+      local sep   = { "│", "Comment" }
+      local fp    = { file_i, "Comment" }
+      local time  = show_time and { entry.time and entry.time:sub(1, 16) or "---", "Comment" } or nil
+      local td_hl = config.todo_highlights[todo]
       if todo ~= "" then
         if show_time then
           return displayer { { todo, td_hl }, sep, { indent .. (entry.headline_text or entry.text), "Normal" }, sep, time, fp }
@@ -174,17 +165,20 @@ function T.open_telescope_picker(opts)
           state.active_todo_filter = val; re_open()
         end
       end
-      local nf, if_ = config.keymaps.todo_filters.normal, config.keymaps.todo_filters.insert
-      map("n", nf.todo, todo_filter("TODO"))
-      map("n", nf.progress, todo_filter("PROGRESS"))
-      map("n", nf.done, todo_filter("DONE"))
-      map("n", nf.waiting, todo_filter("WAITING"))
-      map("n", nf.all, todo_filter(nil))
-      map("i", if_.todo, todo_filter("TODO"))
-      map("i", if_.progress, todo_filter("PROGRESS"))
-      map("i", if_.done, todo_filter("DONE"))
-      map("i", if_.waiting, todo_filter("WAITING"))
-      map("i", if_.all, todo_filter(nil))
+      for _, s in ipairs(config.todo_states or {}) do
+        local km = config.todo_keymaps[s.name] or {}
+        if km.normal then map("n", km.normal, todo_filter(s.name)) end
+      end
+      if config.keymaps.filter_all and config.keymaps.filter_all.normal then
+        map("n", config.keymaps.filter_all.normal, todo_filter(nil))
+      end
+      for _, s in ipairs(config.todo_states or {}) do
+        local km = config.todo_keymaps[s.name] or {}
+        if km.insert then map("i", km.insert, todo_filter(s.name)) end
+      end
+      if config.keymaps.filter_all and config.keymaps.filter_all.insert then
+        map("i", config.keymaps.filter_all.insert, todo_filter(nil))
+      end
 
       -- Delete-Entry(s) (nur History-Picker) --------------------------
       if opts.allow_deletion then
@@ -309,15 +303,22 @@ function T.open_history(opts)
   opts = opts or {}; if opts.reset_filters ~= false then
     state.active_level_filter = nil; state.active_todo_filter = nil
   end
-  opts.entries              = history.all()
-  opts.prompt_title         = "Org Headline History" ..
+  opts.entries      = history.all()
+  opts.prompt_title = "Org Headline History" ..
       (state.active_todo_filter and (" - " .. state.active_todo_filter) or "")
       .. (state.active_level_filter and (" - Level " .. state.active_level_filter) or "")
-  local k                   = config.keymaps
+  local k           = config.keymaps
+  local hints       = {}
+  for _, s in ipairs(config.todo_states or {}) do
+    local km = config.todo_keymaps[s.name] or {}
+    table.insert(hints, string.format("[%s]%s", km.normal or "", s.name:lower()))
+  end
+  if k.filter_all and k.filter_all.normal then
+    table.insert(hints, string.format("[%s]all", k.filter_all.normal))
+  end
   opts.results_title        = string.format(
-    "Filter: [%s]todo [%s]rogress [%s]one [%s]aiting [%s]ll | [%s] Level | [%s] Sort",
-    k.todo_filters.normal.todo, k.todo_filters.normal.progress, k.todo_filters.normal.done,
-    k.todo_filters.normal.waiting, k.todo_filters.normal.all,
+    "Filter: %s | [%s] Level | [%s] Sort",
+    table.concat(hints, " "),
     k.toggle_level_filter:gsub("[<>]", ""), k.toggle_sort:gsub("[<>]", ""))
   opts.open_picker          = T.open_history
   opts.allow_deletion       = true
@@ -337,15 +338,22 @@ function T.open_all_headlines(opts)
   opts = opts or {}; if opts.reset_filters ~= false then
     state.active_level_filter = nil; state.active_todo_filter = nil
   end
-  opts.entries              = scanner.scan()
-  opts.prompt_title         = "All Org Headlines" ..
+  opts.entries      = scanner.scan()
+  opts.prompt_title = "All Org Headlines" ..
       (state.active_todo_filter and (" - " .. state.active_todo_filter) or "")
       .. (state.active_level_filter and (" - Level " .. state.active_level_filter) or "")
-  local k                   = config.keymaps
+  local k           = config.keymaps
+  local hints       = {}
+  for _, s in ipairs(config.todo_states or {}) do
+    local km = config.todo_keymaps[s.name] or {}
+    table.insert(hints, string.format("[%s]%s", km.normal or "", s.name:lower()))
+  end
+  if k.filter_all and k.filter_all.normal then
+    table.insert(hints, string.format("[%s]all", k.filter_all.normal))
+  end
   opts.results_title        = string.format(
-    "Filter: [%s]todo [%s]rogress [%s]one [%s]aiting [%s]ll | [%s] Level | [%s] Sort",
-    k.todo_filters.normal.todo, k.todo_filters.normal.progress, k.todo_filters.normal.done,
-    k.todo_filters.normal.waiting, k.todo_filters.normal.all,
+    "Filter: %s | [%s] Level | [%s] Sort",
+    table.concat(hints, " "),
     k.toggle_level_filter:gsub("[<>]", ""), k.toggle_sort:gsub("[<>]", ""))
   opts.open_picker          = T.open_all_headlines
   opts.allow_deletion       = false
