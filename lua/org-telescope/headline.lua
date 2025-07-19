@@ -2,7 +2,7 @@ local H = {}
 
 function H.parse(line)
   local stars, body = line:match("^(%*+)%s+(.+)")
-  if not stars or #stars > config.max_headline_level then return end
+  if not stars or #stars > config.history.max_headline_level then return end
   local todo, rest = body:match("^(%S+)%s+(.+)")
   for _, kw in ipairs(config.todo_keywords) do
     if todo == kw then return #stars, todo, rest end

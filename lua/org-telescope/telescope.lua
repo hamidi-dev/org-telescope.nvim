@@ -326,7 +326,7 @@ function T.open_history(opts)
   opts.show_time            = true
   opts.allow_preview_toggle = true
 
-  if config.auto_prune and not did_auto_prune then
+  if config.history.auto_prune and not did_auto_prune then
     did_auto_prune = true
     history.prune()
   end

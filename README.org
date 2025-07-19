@@ -46,16 +46,38 @@ The plugin works with default settings, but you can customize it to your needs:
 
 #+begin_src lua
 require('org-telescope').setup({
-  -- Maximum headline level to track (default: 2)
-  max_headline_level = 2,
+  todo_keywords      = { "TODO", "PROGRESS", "DONE", "WAITING" },
 
-  -- History storage location
-  history_file       = vim.fn.stdpath("state") .. "/org-telescope/history.json",
+  picker             = {
+    initial_mode = "insert", -- global initial mode
+    reverse_sort = true,
+  },
 
-  -- Picker defaults
-  picker = {
-    initial_mode = "insert",  -- "insert" or "normal"
-    reverse_sort = true,      -- newest first
+  pickers            = {
+    browse_headlines = { initial_mode = "insert", preview = false },
+    browse_history   = { initial_mode = "normal", preview = true },
+    refile           = { initial_mode = "insert", preview = true },
+  },
+
+  -- File-Scope ---------------------------------------------------------
+  patterns           = { "*.org" },    -- File patterns to track
+  org_folder         = nil,             -- Org folder location (nil means track all *.org files)
+  exclude_files = { "private.org", "secrets.org" }, -- Files to exclude from tracking (can be full paths or filenames)
+
+  smart_tracking     = {
+    enabled          = true,
+    auto_update      = true,
+    search_all_files = true,
+  },
+
+  refile             = {
+    default_mode = "file", -- or "heading"
+  },
+
+  history            = {
+    history_file   = vim.fn.stdpath("state") .. "/org-telescope/history.json",
+    auto_prune     = false,
+    max_headline_level = 2, -- Maximum headline level to track (default: 2)
   },
 
   -- Keymaps
@@ -90,28 +112,7 @@ require('org-telescope').setup({
     },
   },
 
-  pickers            = {
-    browse_headlines = { initial_mode = "insert", preview = false },
-    browse_history   = { initial_mode = "normal", preview = true },
-    refile           = { initial_mode = "insert", preview = true },
-  },
-
-  refile = {
-    -- choose "file" or "heading" as default target mode
-    default_mode = "file",
-  },
-
-  -- File patterns to track
-  patterns = { "*.org" },
-
-  -- Org folder location (nil means track all *.org files)
-  org_folder = nil,
-
-  -- Files to exclude from tracking (can be full paths or filenames)
-  exclude_files = { "private.org", "secrets.org" },
-
-  -- Debug mode
-  debug = false,
+  debug = false, -- Debug mode
 })
 #+end_src
 

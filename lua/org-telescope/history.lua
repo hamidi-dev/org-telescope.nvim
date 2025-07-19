@@ -3,8 +3,8 @@ local M = {}
 
 local S = { list = {} }
 
-local function load() S.list = U.read_json(config.history_file, {}) end
-local function save() U.write_json(config.history_file, S.list) end
+local function load() S.list = U.read_json(config.history.history_file, {}) end
+local function save() U.write_json(config.history.history_file, S.list) end
 
 -- ---------------------------------------------------------------------
 -- utils ----------------------------------------------------------

@@ -2,9 +2,6 @@
 local M = {}
 
 M.defaults = {
-  max_headline_level = 2,
-  history_file       = vim.fn.stdpath("state") .. "/org-telescope/history.json",
-  auto_prune         = false,
   todo_keywords      = { "TODO", "PROGRESS", "DONE", "WAITING" },
 
   picker             = {
@@ -31,6 +28,12 @@ M.defaults = {
 
   refile             = {
     default_mode = "file", -- or "heading"
+  },
+
+  history            = {
+    history_file   = vim.fn.stdpath("state") .. "/org-telescope/history.json", -- file to store history
+    auto_prune     = false, -- automatically prune history on startup
+    max_headline_level = 2, -- max level to track in history
   },
 
 
