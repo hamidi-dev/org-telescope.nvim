@@ -303,6 +303,7 @@ function T.open_history(opts)
   opts = opts or {}; if opts.reset_filters ~= false then
     state.active_level_filter = nil; state.active_todo_filter = nil
   end
+  history.reload()
   opts.entries      = history.all()
   opts.prompt_title = "Org Headline History" ..
       (state.active_todo_filter and (" - " .. state.active_todo_filter) or "")

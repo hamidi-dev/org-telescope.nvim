@@ -8,8 +8,9 @@ Track and navigate org-mode headlines with Telescope.
 DESCRIPTION*org-telescope-description*
 -------------------------------------------------------------------------------
 This plugin records visited headlines in your org files and exposes
-Telescope pickers to jump to them later.  It can also browse all
-headlines without visiting the files.
+Telescope pickers to jump to them later.  History is reloaded each time
+you open the picker, and you can also browse all headlines without
+visiting the files.
 
 INSTALLATION*org-telescope-installation*
 -------------------------------------------------------------------------------

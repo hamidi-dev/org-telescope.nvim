@@ -75,6 +75,10 @@ function M.clear()
   S.list = {}; save()
 end
 
+function M.reload()
+  load()
+end
+
 function M.all() return S.list end
 
 function M.jump(entry)

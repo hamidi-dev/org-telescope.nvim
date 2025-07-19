@@ -7,6 +7,7 @@ A Neovim plugin that tracks and navigates org-mode headlines with Telescope inte
 - Automatically tracks org-mode headlines as you navigate
 - Browse all headlines across your org files
 - Persistent history across Neovim sessions
+- History reloaded each time the picker opens
 - Telescope integration for browsing and searching history
 - Preview headlines with file context
 - Filter by headline level and TODO state (TODO, PROGRESS, DONE, WAITING)
