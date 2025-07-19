@@ -61,13 +61,10 @@ require('org-telescope').setup({
 
   -- File-Scope ---------------------------------------------------------
   -- 'patterns' and 'org_folder' work together:
-  -- only files matching the patterns inside 'org_folder' are considered
-  -- when 'org_folder_only' is true. Set it to false to also track
-  -- matching files outside the folder.
+  -- only files matching the patterns inside 'org_folder' are considered.
   -- If 'org_folder' is nil, patterns apply globally.
   patterns           = { "*.org" },    -- File patterns to track
   org_folder         = nil,             -- Restrict tracking to this folder (nil tracks all patterns)
-  org_folder_only    = true,            -- When false also track files outside org_folder
   exclude_files = { "private.org", "secrets.org" }, -- Files to exclude (full paths or filenames)
 
   smart_tracking     = {
@@ -84,6 +81,7 @@ require('org-telescope').setup({
     history_file   = vim.fn.stdpath("state") .. "/org-telescope/history.json",
     auto_prune     = false,
     max_headline_level = 2, -- Maximum headline level to track (default: 2)
+    org_folder_only    = false, -- Limit tracking to org_folder
   },
 
   -- Keymaps

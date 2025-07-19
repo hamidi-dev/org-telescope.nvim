@@ -64,7 +64,19 @@ end
 function U.file_in_scope(path)
   if not path or path == "" then return false end
   if not matches_patterns(path) then return false end
-  if config.org_folder and config.org_folder_only ~= false then
+  for _, ex in ipairs(config.exclude_files or {}) do
+    local expanded = vim.fn.expand(ex)
+    if path == expanded or path == ex or vim.fn.fnamemodify(path, ":t") == ex then
+      return false
+    end
+  end
+  return true
+end
+
+function U.file_in_history_scope(path)
+  if not path or path == "" then return false end
+  if not matches_patterns(path) then return false end
+  if config.org_folder and config.history.org_folder_only ~= false then
     local folder = vim.fn.expand(config.org_folder)
     if not startswith(path, folder) then return false end
   end

@@ -38,7 +38,6 @@ Default configuration:
       },
       patterns         = { '*.org' },
       org_folder       = nil,
-      org_folder_only  = true,
       exclude_files    = {},
       smart_tracking   = { enabled = true, auto_update = true, search_all_files = true },
       refile           = { default_mode = 'file' },
@@ -46,6 +45,7 @@ Default configuration:
         history_file   = vim.fn.stdpath('state')..'/org-telescope/history.json',
         auto_prune     = false,
         max_headline_level = 2,
+        org_folder_only  = false,
       },
       keymaps = {
         open_history        = '<localleader>oh',

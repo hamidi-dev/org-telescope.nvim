@@ -11,7 +11,7 @@ local history
 
 local function track()
   local file = vim.api.nvim_buf_get_name(0)
-  if not util.file_in_scope(file) then return end
+  if not util.file_in_history_scope(file) then return end
   local hl = headline.current(); if not hl then return end
   history.add(file, vim.api.nvim_win_get_cursor(0)[1], hl)
 end

@@ -26,15 +26,13 @@ local function gather_files()
   local files = {}
   if config.org_folder then
     scandir(vim.fn.expand(config.org_folder), files)
-      if not config.org_folder_only then
-        for _, b in ipairs(vim.api.nvim_list_bufs()) do
-          local n = vim.api.nvim_buf_get_name(b)
-          if n ~= '' then n = vim.fn.fnamemodify(n, ':p') end
-          if util.file_in_scope(n) and not vim.tbl_contains(files, n) then
-            table.insert(files, n)
-          end
-        end
+    for _, b in ipairs(vim.api.nvim_list_bufs()) do
+      local n = vim.api.nvim_buf_get_name(b)
+      if n ~= '' then n = vim.fn.fnamemodify(n, ':p') end
+      if util.file_in_scope(n) and not vim.tbl_contains(files, n) then
+        table.insert(files, n)
       end
+    end
   else
     for _, b in ipairs(vim.api.nvim_list_bufs()) do
       local n = vim.api.nvim_buf_get_name(b)

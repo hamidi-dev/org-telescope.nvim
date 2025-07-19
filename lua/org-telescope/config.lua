@@ -2,39 +2,39 @@
 local M = {}
 
 M.defaults = {
-  todo_keywords      = { "TODO", "PROGRESS", "DONE", "WAITING" },
+  todo_keywords  = { "TODO", "PROGRESS", "DONE", "WAITING" },
 
-  picker             = {
+  picker         = {
     initial_mode = "insert",
     reverse_sort = true,
   },
 
-  pickers            = {
+  pickers        = {
     browse_headlines = { initial_mode = "insert", preview = false },
     browse_history   = { initial_mode = "normal", preview = true },
     refile           = { initial_mode = "insert", preview = true },
   },
 
   -- File-Scope ---------------------------------------------------------
-  patterns           = { "*.org" },
-  org_folder         = nil,
-  org_folder_only    = true,
-  exclude_files      = {},
+  patterns       = { "*.org" },
+  org_folder     = nil,
+  exclude_files  = {},
 
-  smart_tracking     = {
+  smart_tracking = {
     enabled          = true,
     auto_update      = true,
     search_all_files = true,
   },
 
-  refile             = {
+  refile         = {
     default_mode = "file", -- or "heading"
   },
 
-  history            = {
-    history_file   = vim.fn.stdpath("state") .. "/org-telescope/history.json", -- file to store history
-    auto_prune     = false, -- automatically prune history on startup
-    max_headline_level = 2, -- max level to track in history
+  history        = {
+    history_file       = vim.fn.stdpath("state") .. "/org-telescope/history.json", -- file to store history
+    auto_prune         = false,                                                    -- automatically prune history on startup
+    max_headline_level = 2,                                                        -- max level to track in history
+    org_folder_only    = false,
   },
 
 
