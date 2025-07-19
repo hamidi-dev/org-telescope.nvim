@@ -90,13 +90,15 @@ require('org-telescope').setup({
     },
   },
 
+  pickers            = {
+    browse_headlines = { initial_mode = "insert", preview = false },
+    browse_history   = { initial_mode = "normal", preview = true },
+    refile           = { initial_mode = "insert", preview = true },
+  },
+
   refile = {
     -- choose "file" or "heading" as default target mode
     default_mode = "file",
-  },
-
-  browse = {
-    preview = false, -- start without preview window
   },
 
   -- File patterns to track

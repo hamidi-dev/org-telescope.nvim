@@ -1,10 +1,10 @@
 -- org-telescope – Refile-Modul (self-contained) --------------------------
-local scanner  = require("org-telescope.scanner")
-local headline = require("org-telescope.headline")
-local util     = require("org-telescope.util")
-local customPickers  = require("org-telescope.pickers")
+local scanner       = require("org-telescope.scanner")
+local headline      = require("org-telescope.headline")
+local util          = require("org-telescope.util")
+local customPickers = require("org-telescope.pickers")
 
-local R = {}
+local R             = {}
 
 ------------------------------------------------------------------------
 -- helpers
@@ -61,7 +61,9 @@ local function heading_range(lines, pos)
   local stop = #lines
   for i = start + 1, #lines do
     local s = lines[i]:match("^(%*+)")
-    if s and #s <= lvl then stop = i - 1; break end
+    if s and #s <= lvl then
+      stop = i - 1; break
+    end
   end
   return start, stop, lvl
 end
@@ -84,7 +86,7 @@ end
 local function reload_if_open(path)
   for _, b in ipairs(vim.api.nvim_list_bufs()) do
     if vim.api.nvim_buf_get_name(b) == path
-       and not vim.api.nvim_buf_get_option(b, "modified") then
+        and not vim.api.nvim_buf_get_option(b, "modified") then
       vim.api.nvim_buf_call(b, function() vim.cmd("edit!") end)
       break
     end
@@ -117,17 +119,17 @@ function R.refile_current_heading(mode)
   ----------------------------------------------------------------------
   -- 1) aktuellen Abschnitt bestimmen
   ----------------------------------------------------------------------
-  local buf   = vim.api.nvim_get_current_buf()
-  local file  = vim.api.nvim_buf_get_name(buf)
-  local cur   = vim.api.nvim_win_get_cursor(0)[1]
-  local lines = vim.fn.readfile(file)
+  local buf       = vim.api.nvim_get_current_buf()
+  local file      = vim.api.nvim_buf_get_name(buf)
+  local cur       = vim.api.nvim_win_get_cursor(0)[1]
+  local lines     = vim.fn.readfile(file)
 
   local s, e, lvl = heading_range(lines, cur)
   if not s then return util.log("Not inside an Org heading", vim.log.levels.WARN) end
 
   -- Infos des Headings für spätere Berechnungen
-  local _, todo_kw, txt = headline.parse(lines[s])
-  local cur_heading = {
+  local _, todo_kw, txt                                         = headline.parse(lines[s])
+  local cur_heading                                             = {
     level         = lvl,
     todo_state    = todo_kw,
     headline_text = txt,
@@ -137,9 +139,9 @@ function R.refile_current_heading(mode)
   ----------------------------------------------------------------------
   -- 2) Picker-Daten vorbereiten
   ----------------------------------------------------------------------
-  mode = mode or config.refile.default_mode or "file"
-  local all_headlines = scanner.scan()
-  local files         = gather_files()
+  mode                                                          = mode or config.refile.default_mode or "file"
+  local all_headlines                                           = scanner.scan()
+  local files                                                   = gather_files()
 
   local telescope_pickers, finders, conf, actions, action_state =
       require("telescope.pickers"),
@@ -178,15 +180,18 @@ function R.refile_current_heading(mode)
   -- 3) Picker erstellen & anzeigen
   ----------------------------------------------------------------------
   local function build_picker(entries, title)
-    return telescope_pickers.new({ initial_mode = "insert", prompt_title = title }, {
-      finder = finders.new_table{
+    return telescope_pickers.new({
+      initial_mode = config.pickers.refile.initial_mode,
+      prompt_title = title,
+    }, {
+      finder = finders.new_table {
         results = entries,
         entry_maker = function(e)
           return { value = e.value, display = e.display, ordinal = e.ordinal }
         end,
       },
       sorter = conf.generic_sorter({}),
-      previewer = customPickers.custom_previewer(),
+      previewer = config.pickers.refile.preview and customPickers.custom_previewer() or nil,
       attach_mappings = function(bufnr, map)
         -- zwischen Datei- & Headline-Mode umschalten
         local function toggle()
@@ -218,10 +223,9 @@ function R.refile_current_heading(mode)
   end
 
   local picker = (mode == "file")
-      and build_picker(make_file_entries(),   "Select Target File")
-       or build_picker(make_headline_entries(), "Select Target Heading")
+      and build_picker(make_file_entries(), "Select Target File")
+      or build_picker(make_headline_entries(), "Select Target Heading")
   picker:find()
 end
 
 return R
-

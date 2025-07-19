@@ -1,13 +1,13 @@
 -- Org-telescope – Telescope-Picker (komplett) ----------------------------
-local util    = require("org-telescope.util")
-local history = require("org-telescope.history")
-local scanner = require("org-telescope.scanner")
+local util          = require("org-telescope.util")
+local history       = require("org-telescope.history")
+local scanner       = require("org-telescope.scanner")
 local customPickers = require("org-telescope.pickers")
 
-local T       = {}
+local T             = {}
 
 -- Local Picker-State (Filter & Sort)
-local state   = {
+local state         = {
   active_level_filter = nil,
   active_todo_filter  = nil,
   reverse_sort        = config.picker.reverse_sort,
@@ -74,7 +74,7 @@ local function entry_maker(show_time)
     return {
       value   = entry,
       ordinal = show_time and (entry.text .. " " .. (entry.time or "") .. " " .. file_i)
-                or (entry.text .. " " .. file_i),
+          or (entry.text .. " " .. file_i),
       index   = idx,
       display = disp,
       path    = entry.file, -- 👈 wichtig!
@@ -104,11 +104,11 @@ function T.open_telescope_picker(opts)
       require("telescope.config").values, require("telescope.actions"),
       require("telescope.actions.state")
 
-  local filtered = filter_entries(opts.entries)
+  local filtered                                      = filter_entries(opts.entries)
 
-  local show_time   = opts.show_time ~= false
+  local show_time                                     = opts.show_time ~= false
 
-  local picker = pickers.new({
+  local picker                                        = pickers.new({
     initial_mode = opts.initial_mode or config.picker.initial_mode,
     results_title = opts.results_title,
     layout_config = { width = 0.9, height = 0.8, preview_width = 0.65 },
@@ -309,19 +309,23 @@ function T.open_history(opts)
   opts = opts or {}; if opts.reset_filters ~= false then
     state.active_level_filter = nil; state.active_todo_filter = nil
   end
-  opts.entries        = history.all()
-  opts.prompt_title   = "Org Headline History" ..
+  opts.entries              = history.all()
+  opts.prompt_title         = "Org Headline History" ..
       (state.active_todo_filter and (" - " .. state.active_todo_filter) or "")
       .. (state.active_level_filter and (" - Level " .. state.active_level_filter) or "")
-  local k             = config.keymaps
-  opts.results_title  = string.format("Filter: [%s]todo [%s]rogress [%s]one [%s]aiting [%s]ll | [%s] Level | [%s] Sort",
+  local k                   = config.keymaps
+  opts.results_title        = string.format(
+    "Filter: [%s]todo [%s]rogress [%s]one [%s]aiting [%s]ll | [%s] Level | [%s] Sort",
     k.todo_filters.normal.todo, k.todo_filters.normal.progress, k.todo_filters.normal.done,
     k.todo_filters.normal.waiting, k.todo_filters.normal.all,
     k.toggle_level_filter:gsub("[<>]", ""), k.toggle_sort:gsub("[<>]", ""))
-  opts.open_picker    = T.open_history
-  opts.allow_deletion = true
-  state.show_preview  = true
-  opts.show_time      = true
+  opts.open_picker          = T.open_history
+  opts.allow_deletion       = true
+  state.show_preview        = config.pickers.browse_history.preview
+  opts.initial_mode         = config.pickers.browse_history.initial_mode
+  opts.show_time            = true
+  opts.allow_preview_toggle = true
+
   if config.auto_prune and not did_auto_prune then
     did_auto_prune = true
     history.prune()
@@ -333,18 +337,21 @@ function T.open_all_headlines(opts)
   opts = opts or {}; if opts.reset_filters ~= false then
     state.active_level_filter = nil; state.active_todo_filter = nil
   end
-  opts.entries        = scanner.scan()
-  opts.prompt_title   = "All Org Headlines" .. (state.active_todo_filter and (" - " .. state.active_todo_filter) or "")
+  opts.entries              = scanner.scan()
+  opts.prompt_title         = "All Org Headlines" ..
+      (state.active_todo_filter and (" - " .. state.active_todo_filter) or "")
       .. (state.active_level_filter and (" - Level " .. state.active_level_filter) or "")
-  local k             = config.keymaps
-  opts.results_title  = string.format("Filter: [%s]todo [%s]rogress [%s]one [%s]aiting [%s]ll | [%s] Level | [%s] Sort",
+  local k                   = config.keymaps
+  opts.results_title        = string.format(
+    "Filter: [%s]todo [%s]rogress [%s]one [%s]aiting [%s]ll | [%s] Level | [%s] Sort",
     k.todo_filters.normal.todo, k.todo_filters.normal.progress, k.todo_filters.normal.done,
     k.todo_filters.normal.waiting, k.todo_filters.normal.all,
     k.toggle_level_filter:gsub("[<>]", ""), k.toggle_sort:gsub("[<>]", ""))
-  opts.open_picker    = T.open_all_headlines
-  opts.allow_deletion = false
-  state.show_preview  = config.browse.preview
-  opts.show_time      = false
+  opts.open_picker          = T.open_all_headlines
+  opts.allow_deletion       = false
+  state.show_preview        = config.pickers.browse_headlines.preview
+  opts.initial_mode         = config.pickers.browse_headlines.initial_mode
+  opts.show_time            = false
   opts.allow_preview_toggle = true
   T.open_telescope_picker(opts)
 end

@@ -19,7 +19,7 @@ local function track()
   history.add(file, vim.api.nvim_win_get_cursor(0)[1], hl)
 end
 
-function M.setup(user)                     -- Public
+function M.setup(user) -- Public
   cfg.setup(user)
   teles   = require("org-telescope.telescope")
   history = require("org-telescope.history")

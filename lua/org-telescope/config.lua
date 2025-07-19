@@ -12,6 +12,12 @@ M.defaults = {
     reverse_sort = true,
   },
 
+  pickers            = {
+    browse_headlines = { initial_mode = "insert", preview = false },
+    browse_history   = { initial_mode = "normal", preview = true },
+    refile           = { initial_mode = "insert", preview = true },
+  },
+
   -- File-Scope ---------------------------------------------------------
   patterns           = { "*.org" },
   org_folder         = nil,
@@ -24,15 +30,12 @@ M.defaults = {
   },
 
   refile             = {
-    default_mode = "file",    -- or "heading"
+    default_mode = "file", -- or "heading"
   },
 
-  browse            = {
-    preview = false,        -- start headline browser without preview
-  },
 
   -- Keymaps (original Layout) -----------------------------------------
-  keymaps            = {
+  keymaps = {
     open_history        = "<localleader>oh",
     browse_all          = "<localleader>ob",
     clear_history       = "<localleader>ohc",
@@ -51,7 +54,7 @@ M.defaults = {
     },
   },
 
-  debug              = false,
+  debug   = false,
 }
 
 function M.setup(user)
